@@ -18,7 +18,7 @@ struct InstallView: View {
                 Button {
                     Task { await installService.installFromURL(ipaURL) }
                 } label: {
-                    Label("Instaluj z URL", systemImage: "link")
+                    Label("Install from URL", systemImage: "link")
                         .frame(maxWidth: .infinity).padding()
                         .background(Color.orange).foregroundStyle(.black)
                         .cornerRadius(14)
@@ -33,7 +33,7 @@ struct InstallView: View {
                 Spacer()
             }
             .padding()
-            .navigationTitle("Instalacyjŏ")
+            .navigationTitle("Install")
         }
     }
 
@@ -42,9 +42,9 @@ struct InstallView: View {
             Circle()
                 .fill(vpnManager.isConnected ? .green : .red)
                 .frame(width: 12, height: 12)
-            Text(vpnManager.isConnected ? "VPN aktywny" : "VPN niyaktywny")
+            Text(vpnManager.isConnected ? "VPN connected" : "VPN disconnected")
             Spacer()
-            Button(vpnManager.isConnected ? "Rozłōncz" : "Połōncz") {
+            Button(vpnManager.isConnected ? "Disconnect" : "Connect") {
                 vpnManager.toggle()
             }
         }

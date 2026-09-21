@@ -10,6 +10,7 @@ struct HomeView: View {
                     header
                     featuredSection
                     sourcesSection
+                    footer
                 }
                 .padding()
             }
@@ -20,10 +21,10 @@ struct HomeView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Witej w Ariva-Store")
+            Text("Welcome to Ariva-Store")
                 .font(.largeTitle.bold())
                 .foregroundStyle(.orange)
-            Text("Sideloading IPA dlŏ ślōnskij kultury")
+            Text("Sideload IPA apps on your iPhone — safely and simply.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -31,7 +32,7 @@ struct HomeView: View {
 
     private var featuredSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Polecane").font(.title2.bold())
+            Text("Featured").font(.title2.bold())
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(AppModel.samples) { app in
@@ -44,7 +45,7 @@ struct HomeView: View {
 
     private var sourcesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Zdrzōdła").font(.title2.bold())
+            Text("Sources").font(.title2.bold())
             ForEach(sourceManager.sources) { src in
                 HStack {
                     Image(systemName: "link.circle.fill").foregroundStyle(.orange)
@@ -58,6 +59,18 @@ struct HomeView: View {
                 .cornerRadius(12)
             }
         }
+    }
+
+    private var footer: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Author: Eksemekse-dev")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            Text("This app was created with the help of AI. It is not intended for piracy and does not support it.")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .padding(.top, 24)
     }
 }
 

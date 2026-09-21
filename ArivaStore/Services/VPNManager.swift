@@ -5,12 +5,12 @@ import Combine
 @MainActor
 final class VPNManager: ObservableObject {
     @Published var isConnected = false
-    @Published var statusText = "Rozłōnczōny"
+    @Published var statusText = "Disconnected"
 
-    // Wymaga entitlement: com.apple.developer.networking.networkextension
+    // Requires entitlement: com.apple.developer.networking.networkextension
     func toggle() {
         isConnected.toggle()
-        statusText = isConnected ? "Połōnczōny" : "Rozłōnczōny"
+        statusText = isConnected ? "Connected" : "Disconnected"
         if isConnected {
             startTunnel()
         } else {
@@ -19,8 +19,7 @@ final class VPNManager: ObservableObject {
     }
 
     private func startTunnel() {
-        // Miejsce na integrację z zewnętrznym VPN (WireGuard / OpenVPN)
-        // NEPacketTunnelProviderManager.shared().loadFromPreferences...
+        // Hook for external VPN (WireGuard / OpenVPN / custom provider).
         print("[Ariva] VPN start")
     }
 

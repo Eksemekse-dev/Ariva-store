@@ -8,22 +8,25 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Zdrzōdła IPA") {
+                Section("IPA Sources") {
                     ForEach(sourceManager.sources) { s in
                         Text(s.name)
                     }
-                    Button("Przidej zdrzōdło") { sourceManager.addSource() }
+                    Button("Add source") { sourceManager.addSource() }
                 }
-                Section("Ôpcyje") {
-                    Toggle("Auto-instalacyjŏ", isOn: $autoInstall)
-                    Toggle("Tryb deweloperski", isOn: $devMode)
+                Section("Options") {
+                    Toggle("Auto-install", isOn: $autoInstall)
+                    Toggle("Developer mode", isOn: $devMode)
                 }
-                Section("Ô aplikacyji") {
-                    LabeledContent("Wersyjŏ", value: "1.0.0")
-                    LabeledContent("Autor", value: "Ariva Dev Team")
+                Section("About") {
+                    LabeledContent("Version", value: "1.0.0")
+                    LabeledContent("Author", value: "Eksemekse-dev")
+                    Text("This app was created with the help of AI. It is not intended for piracy and does not support it.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
             }
-            .navigationTitle("Sztelōnki")
+            .navigationTitle("Settings")
         }
     }
 }

@@ -10,21 +10,21 @@ struct AppModel: Identifiable, Hashable {
     let ipaURL: String
 
     static let samples: [AppModel] = [
-        AppModel(name: "Ślōnsk Radio", bundleID: "pl.ariva.radio",
+        AppModel(name: "Radio Player", bundleID: "dev.eksemekse.radio",
                  version: "1.2.0", iconEmoji: "📻",
-                 description: "Radijŏ ze Ślōnska — muzyka, godka, tradycyjŏ.",
+                 description: "A simple radio player with public streams.",
                  ipaURL: "https://example.com/radio.ipa"),
-        AppModel(name: "Godka Ślōnskŏ", bundleID: "pl.ariva.godka",
+        AppModel(name: "Dictionary", bundleID: "dev.eksemekse.dictionary",
                  version: "2.0.1", iconEmoji: "📖",
-                 description: "Słownik i kurs ślōnskij godki.",
-                 ipaURL: "https://example.com/godka.ipa"),
-        AppModel(name: "Barbórka AR", bundleID: "pl.ariva.barborka",
-                 version: "1.0.5", iconEmoji: "⛏️",
-                 description: "Rozszerzōnŏ rzeczywistość na Barbórkã.",
-                 ipaURL: "https://example.com/barborka.ipa"),
-        AppModel(name: "Ślōnskŏ Kuchnia", bundleID: "pl.ariva.kuchnia",
+                 description: "Offline multilingual dictionary.",
+                 ipaURL: "https://example.com/dictionary.ipa"),
+        AppModel(name: "AR Viewer", bundleID: "dev.eksemekse.arviewer",
+                 version: "1.0.5", iconEmoji: "🕶️",
+                 description: "Minimal AR viewer for demo purposes.",
+                 ipaURL: "https://example.com/arviewer.ipa"),
+        AppModel(name: "Recipe Book", bundleID: "dev.eksemekse.recipes",
                  version: "1.1.0", iconEmoji: "🍲",
-                 description: "Tradycyjne recepty: rolada, kluski, modrŏ kapusta.",
-                 ipaURL: "https://example.com/kuchnia.ipa")
+                 description: "A personal recipe book with categories.",
+                 ipaURL: "https://example.com/recipes.ipa")
     ]
 }

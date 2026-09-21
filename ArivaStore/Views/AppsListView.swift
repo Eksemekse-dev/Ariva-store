@@ -21,8 +21,8 @@ struct AppsListView: View {
                     }
                 }
             }
-            .navigationTitle("Aplikacyje")
-            .searchable(text: $search, prompt: "Szukej...")
+            .navigationTitle("Apps")
+            .searchable(text: $search, prompt: "Search...")
         }
     }
 }

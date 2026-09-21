@@ -8,19 +8,19 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selection) {
             HomeView()
-                .tabItem { Label("Dóm", systemImage: "house.fill") }
+                .tabItem { Label("Home", systemImage: "house.fill") }
                 .tag(Tab.home)
 
             AppsListView()
-                .tabItem { Label("Aplikacyje", systemImage: "square.grid.2x2.fill") }
+                .tabItem { Label("Apps", systemImage: "square.grid.2x2.fill") }
                 .tag(Tab.apps)
 
             InstallView()
-                .tabItem { Label("Instalacyjŏ", systemImage: "arrow.down.app.fill") }
+                .tabItem { Label("Install", systemImage: "arrow.down.app.fill") }
                 .tag(Tab.install)
 
             SettingsView()
-                .tabItem { Label("Sztelōnki", systemImage: "gearshape.fill") }
+                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
                 .tag(Tab.settings)
         }
         .tint(.orange)

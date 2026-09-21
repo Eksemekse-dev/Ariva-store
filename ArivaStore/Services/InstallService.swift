@@ -5,7 +5,7 @@ import Combine
 final class InstallService: ObservableObject {
     @Published var isInstalling = false
     @Published var progress: Double = 0
-    @Published var status: String = "Gotowe"
+    @Published var status: String = "Ready"
 
     func install(app: AppModel) async {
         await installFromURL(app.ipaURL)
@@ -13,23 +13,23 @@ final class InstallService: ObservableObject {
 
     func installFromURL(_ urlString: String) async {
         guard let url = URL(string: urlString) else {
-            status = "Zły URL"; return
+            status = "Invalid URL"; return
         }
         isInstalling = true
         progress = 0
-        status = "Pobiyranie..."
+        status = "Downloading..."
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             progress = 0.6
-            status = "Weryfikacyjŏ podpisu..."
+            status = "Verifying signature..."
             try await Task.sleep(nanoseconds: 800_000_000)
             progress = 0.9
-            status = "Instalacyjŏ..."
+            status = "Installing..."
             try await Task.sleep(nanoseconds: 800_000_000)
             progress = 1.0
-            status = "Zainstalowane (\(data.count) bajtōw)"
+            status = "Installed (\(data.count) bytes)"
         } catch {
-            status = "Feler: \(error.localizedDescription)"
+            status = "Error: \(error.localizedDescription)"
         }
         isInstalling = false
     }

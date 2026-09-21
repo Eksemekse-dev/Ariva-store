@@ -13,7 +13,7 @@ struct AppDetailView: View {
                 Text(app.bundleID).font(.caption).foregroundStyle(.secondary)
 
                 if !vpnManager.isConnected {
-                    Label("Połōncz VPN coby instalować", systemImage: "exclamationmark.triangle")
+                    Label("Connect VPN to install", systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.yellow)
                         .padding()
                         .background(Color.yellow.opacity(0.15))
@@ -23,7 +23,7 @@ struct AppDetailView: View {
                 Button {
                     Task { await installService.install(app: app) }
                 } label: {
-                    Label("Instaluj", systemImage: "arrow.down.circle.fill")
+                    Label("Install", systemImage: "arrow.down.circle.fill")
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.orange)
@@ -33,7 +33,7 @@ struct AppDetailView: View {
                 .disabled(!vpnManager.isConnected)
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Ôpis").font(.headline)
+                    Text("Description").font(.headline)
                     Text(app.description).foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

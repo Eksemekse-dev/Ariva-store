@@ -5,7 +5,7 @@
     <key>CFBundleDisplayName</key>
     <string>Ariva-Store</string>
     <key>CFBundleIdentifier</key>
-    <string>pl.ariva.store</string>
+    <string>dev.eksemekse.arivastore</string>
     <key>CFBundleShortVersionString</key>
     <string>1.0.0</string>
     <key>CFBundleVersion</key>
