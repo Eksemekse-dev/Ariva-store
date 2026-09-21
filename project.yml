@@ -3,6 +3,7 @@ options:
   bundleIdPrefix: dev.eksemekse
   deploymentTarget:
     iOS: "16.0"
+
 targets:
   ArivaStore:
     type: application
@@ -20,6 +21,12 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: dev.eksemekse.arivastore
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1"
+
+        # 🔑 TO NAPRAWIA LAYOUT
+        INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
+        GENERATE_INFOPLIST_FILE: "NO"
+
         CODE_SIGN_STYLE: Manual
         CODE_SIGNING_REQUIRED: "NO"
         CODE_SIGNING_ALLOWED: "NO"
