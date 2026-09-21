@@ -62,19 +62,19 @@ jobs:
               var body: some View {
                   TabView(selection: $selection) {
                       HomeView()
-                          .tabItem { Label("Dóm", systemImage: "house.fill") }
+                          .tabItem { Label("Home", systemImage: "house.fill") }
                           .tag(Tab.home)
 
                       AppsListView()
-                          .tabItem { Label("Aplikacyje", systemImage: "square.grid.2x2.fill") }
+                          .tabItem { Label("Apps", systemImage: "square.grid.2x2.fill") }
                           .tag(Tab.apps)
 
                       InstallView()
-                          .tabItem { Label("Instalacyjŏ", systemImage: "arrow.down.app.fill") }
+                          .tabItem { Label("Install", systemImage: "arrow.down.app.fill") }
                           .tag(Tab.install)
 
                       SettingsView()
-                          .tabItem { Label("Sztelōnki", systemImage: "gearshape.fill") }
+                          .tabItem { Label("Settings", systemImage: "gearshape.fill") }
                           .tag(Tab.settings)
                   }
                   .tint(.orange)
@@ -97,6 +97,7 @@ jobs:
                               header
                               featuredSection
                               sourcesSection
+                              footer
                           }
                           .padding()
                       }
@@ -107,10 +108,10 @@ jobs:
 
               private var header: some View {
                   VStack(alignment: .leading, spacing: 8) {
-                      Text("Witej w Ariva-Store")
+                      Text("Welcome to Ariva-Store")
                           .font(.largeTitle.bold())
                           .foregroundStyle(.orange)
-                      Text("Sideloading IPA dlŏ ślōnskij kultury")
+                      Text("Sideload IPA apps on your iPhone — safely and simply.")
                           .font(.subheadline)
                           .foregroundStyle(.secondary)
                   }
@@ -118,7 +119,7 @@ jobs:
 
               private var featuredSection: some View {
                   VStack(alignment: .leading, spacing: 12) {
-                      Text("Polecane").font(.title2.bold())
+                      Text("Featured").font(.title2.bold())
                       ScrollView(.horizontal, showsIndicators: false) {
                           HStack(spacing: 12) {
                               ForEach(AppModel.samples) { app in
@@ -131,7 +132,7 @@ jobs:
 
               private var sourcesSection: some View {
                   VStack(alignment: .leading, spacing: 12) {
-                      Text("Zdrzōdła").font(.title2.bold())
+                      Text("Sources").font(.title2.bold())
                       ForEach(sourceManager.sources) { src in
                           HStack {
                               Image(systemName: "link.circle.fill").foregroundStyle(.orange)
@@ -145,6 +146,18 @@ jobs:
                           .cornerRadius(12)
                       }
                   }
+              }
+
+              private var footer: some View {
+                  VStack(alignment: .leading, spacing: 4) {
+                      Text("Author: Eksemekse-dev")
+                          .font(.footnote)
+                          .foregroundStyle(.secondary)
+                      Text("This app was created with the help of AI. It is not intended for piracy and does not support it.")
+                          .font(.caption2)
+                          .foregroundStyle(.tertiary)
+                  }
+                  .padding(.top, 24)
               }
           }
 
@@ -192,8 +205,8 @@ jobs:
                               }
                           }
                       }
-                      .navigationTitle("Aplikacyje")
-                      .searchable(text: $search, prompt: "Szukej...")
+                      .navigationTitle("Apps")
+                      .searchable(text: $search, prompt: "Search...")
                   }
               }
           }
@@ -217,7 +230,7 @@ jobs:
                           Text(app.bundleID).font(.caption).foregroundStyle(.secondary)
 
                           if !vpnManager.isConnected {
-                              Label("Połōncz VPN coby instalować", systemImage: "exclamationmark.triangle")
+                              Label("Connect VPN to install", systemImage: "exclamationmark.triangle")
                                   .foregroundStyle(.yellow)
                                   .padding()
                                   .background(Color.yellow.opacity(0.15))
@@ -227,7 +240,7 @@ jobs:
                           Button {
                               Task { await installService.install(app: app) }
                           } label: {
-                              Label("Instaluj", systemImage: "arrow.down.circle.fill")
+                              Label("Install", systemImage: "arrow.down.circle.fill")
                                   .frame(maxWidth: .infinity)
                                   .padding()
                                   .background(Color.orange)
@@ -237,7 +250,7 @@ jobs:
                           .disabled(!vpnManager.isConnected)
 
                           VStack(alignment: .leading, spacing: 8) {
-                              Text("Ôpis").font(.headline)
+                              Text("Description").font(.headline)
                               Text(app.description).foregroundStyle(.secondary)
                           }
                           .frame(maxWidth: .infinity, alignment: .leading)
@@ -273,7 +286,7 @@ jobs:
                           Button {
                               Task { await installService.installFromURL(ipaURL) }
                           } label: {
-                              Label("Instaluj z URL", systemImage: "link")
+                              Label("Install from URL", systemImage: "link")
                                   .frame(maxWidth: .infinity).padding()
                                   .background(Color.orange).foregroundStyle(.black)
                                   .cornerRadius(14)
@@ -288,7 +301,7 @@ jobs:
                           Spacer()
                       }
                       .padding()
-                      .navigationTitle("Instalacyjŏ")
+                      .navigationTitle("Install")
                   }
               }
 
@@ -297,9 +310,9 @@ jobs:
                       Circle()
                           .fill(vpnManager.isConnected ? .green : .red)
                           .frame(width: 12, height: 12)
-                      Text(vpnManager.isConnected ? "VPN aktywny" : "VPN niyaktywny")
+                      Text(vpnManager.isConnected ? "VPN connected" : "VPN disconnected")
                       Spacer()
-                      Button(vpnManager.isConnected ? "Rozłōncz" : "Połōncz") {
+                      Button(vpnManager.isConnected ? "Disconnect" : "Connect") {
                           vpnManager.toggle()
                       }
                   }
@@ -323,22 +336,25 @@ jobs:
               var body: some View {
                   NavigationStack {
                       Form {
-                          Section("Zdrzōdła IPA") {
+                          Section("IPA Sources") {
                               ForEach(sourceManager.sources) { s in
                                   Text(s.name)
                               }
-                              Button("Przidej zdrzōdło") { sourceManager.addSource() }
+                              Button("Add source") { sourceManager.addSource() }
                           }
-                          Section("Ôpcyje") {
-                              Toggle("Auto-instalacyjŏ", isOn: $autoInstall)
-                              Toggle("Tryb deweloperski", isOn: $devMode)
+                          Section("Options") {
+                              Toggle("Auto-install", isOn: $autoInstall)
+                              Toggle("Developer mode", isOn: $devMode)
                           }
-                          Section("Ô aplikacyji") {
-                              LabeledContent("Wersyjŏ", value: "1.0.0")
-                              LabeledContent("Autor", value: "Ariva Dev Team")
+                          Section("About") {
+                              LabeledContent("Version", value: "1.0.0")
+                              LabeledContent("Author", value: "Eksemekse-dev")
+                              Text("This app was created with the help of AI. It is not intended for piracy and does not support it.")
+                                  .font(.caption2)
+                                  .foregroundStyle(.secondary)
                           }
                       }
-                      .navigationTitle("Sztelōnki")
+                      .navigationTitle("Settings")
                   }
               }
           }
@@ -359,22 +375,22 @@ jobs:
               let ipaURL: String
 
               static let samples: [AppModel] = [
-                  AppModel(name: "Ślōnsk Radio", bundleID: "pl.ariva.radio",
+                  AppModel(name: "Radio Player", bundleID: "dev.eksemekse.radio",
                            version: "1.2.0", iconEmoji: "📻",
-                           description: "Radijŏ ze Ślōnska — muzyka, godka, tradycyjŏ.",
+                           description: "A simple radio player with public streams.",
                            ipaURL: "https://example.com/radio.ipa"),
-                  AppModel(name: "Godka Ślōnskŏ", bundleID: "pl.ariva.godka",
+                  AppModel(name: "Dictionary", bundleID: "dev.eksemekse.dictionary",
                            version: "2.0.1", iconEmoji: "📖",
-                           description: "Słownik i kurs ślōnskij godki.",
-                           ipaURL: "https://example.com/godka.ipa"),
-                  AppModel(name: "Barbórka AR", bundleID: "pl.ariva.barborka",
-                           version: "1.0.5", iconEmoji: "⛏️",
-                           description: "Rozszerzōnŏ rzeczywistość na Barbórkã.",
-                           ipaURL: "https://example.com/barborka.ipa"),
-                  AppModel(name: "Ślōnskŏ Kuchnia", bundleID: "pl.ariva.kuchnia",
+                           description: "Offline multilingual dictionary.",
+                           ipaURL: "https://example.com/dictionary.ipa"),
+                  AppModel(name: "AR Viewer", bundleID: "dev.eksemekse.arviewer",
+                           version: "1.0.5", iconEmoji: "🕶️",
+                           description: "Minimal AR viewer for demo purposes.",
+                           ipaURL: "https://example.com/arviewer.ipa"),
+                  AppModel(name: "Recipe Book", bundleID: "dev.eksemekse.recipes",
                            version: "1.1.0", iconEmoji: "🍲",
-                           description: "Tradycyjne recepty: rolada, kluski, modrŏ kapusta.",
-                           ipaURL: "https://example.com/kuchnia.ipa")
+                           description: "A personal recipe book with categories.",
+                           ipaURL: "https://example.com/recipes.ipa")
               ]
           }
           EOF
@@ -402,7 +418,7 @@ jobs:
           final class InstallService: ObservableObject {
               @Published var isInstalling = false
               @Published var progress: Double = 0
-              @Published var status: String = "Gotowe"
+              @Published var status: String = "Ready"
 
               func install(app: AppModel) async {
                   await installFromURL(app.ipaURL)
@@ -410,23 +426,23 @@ jobs:
 
               func installFromURL(_ urlString: String) async {
                   guard let url = URL(string: urlString) else {
-                      status = "Zły URL"; return
+                      status = "Invalid URL"; return
                   }
                   isInstalling = true
                   progress = 0
-                  status = "Pobiyranie..."
+                  status = "Downloading..."
                   do {
                       let (data, _) = try await URLSession.shared.data(from: url)
                       progress = 0.6
-                      status = "Weryfikacyjŏ podpisu..."
+                      status = "Verifying signature..."
                       try await Task.sleep(nanoseconds: 800_000_000)
                       progress = 0.9
-                      status = "Instalacyjŏ..."
+                      status = "Installing..."
                       try await Task.sleep(nanoseconds: 800_000_000)
                       progress = 1.0
-                      status = "Zainstalowane (\(data.count) bajtōw)"
+                      status = "Installed (\(data.count) bytes)"
                   } catch {
-                      status = "Feler: \(error.localizedDescription)"
+                      status = "Error: \(error.localizedDescription)"
                   }
                   isInstalling = false
               }
@@ -443,12 +459,12 @@ jobs:
           @MainActor
           final class VPNManager: ObservableObject {
               @Published var isConnected = false
-              @Published var statusText = "Rozłōnczōny"
+              @Published var statusText = "Disconnected"
 
-              // Wymaga entitlement: com.apple.developer.networking.networkextension
+              // Requires entitlement: com.apple.developer.networking.networkextension
               func toggle() {
                   isConnected.toggle()
-                  statusText = isConnected ? "Połōnczōny" : "Rozłōnczōny"
+                  statusText = isConnected ? "Connected" : "Disconnected"
                   if isConnected {
                       startTunnel()
                   } else {
@@ -457,8 +473,7 @@ jobs:
               }
 
               private func startTunnel() {
-                  // Miejsce na integrację z zewnętrznym VPN (WireGuard / OpenVPN)
-                  // NEPacketTunnelProviderManager.shared().loadFromPreferences...
+                  // Hook for external VPN (WireGuard / OpenVPN / custom provider).
                   print("[Ariva] VPN start")
               }
 
@@ -478,11 +493,11 @@ jobs:
           final class SourceManager: ObservableObject {
               @Published var sources: [SourceModel] = [
                   SourceModel(name: "Ariva Official", url: "https://ariva.store/repo.json", appCount: 42),
-                  SourceModel(name: "Ślōnsk Community", url: "https://slask.dev/repo.json", appCount: 17)
+                  SourceModel(name: "Community", url: "https://example.com/repo.json", appCount: 17)
               ]
 
               func addSource() {
-                  sources.append(SourceModel(name: "Nowe zdrzōdło",
+                  sources.append(SourceModel(name: "New Source",
                                              url: "https://example.com/repo.json",
                                              appCount: 0))
               }
@@ -499,7 +514,7 @@ jobs:
               <key>CFBundleDisplayName</key>
               <string>Ariva-Store</string>
               <key>CFBundleIdentifier</key>
-              <string>pl.ariva.store</string>
+              <string>dev.eksemekse.arivastore</string>
               <key>CFBundleShortVersionString</key>
               <string>1.0.0</string>
               <key>CFBundleVersion</key>
@@ -519,7 +534,7 @@ jobs:
           cat > project.yml << 'EOF'
           name: ArivaStore
           options:
-            bundleIdPrefix: pl.ariva
+            bundleIdPrefix: dev.eksemekse
             deploymentTarget:
               iOS: "16.0"
           targets:
@@ -536,7 +551,7 @@ jobs:
                   CFBundleVersion: "1"
               settings:
                 base:
-                  PRODUCT_BUNDLE_IDENTIFIER: pl.ariva.store
+                  PRODUCT_BUNDLE_IDENTIFIER: dev.eksemekse.arivastore
                   MARKETING_VERSION: "1.0.0"
                   CURRENT_PROJECT_VERSION: "1"
                   CODE_SIGN_STYLE: Manual
@@ -544,10 +559,31 @@ jobs:
                   CODE_SIGNING_ALLOWED: "NO"
           EOF
 
+      - name: README.md
+        run: |
+          cat > README.md << 'EOF'
+          # Ariva-Store
+
+          A sideloading helper app for iOS — install IPA files over a VPN connection.
+
+          **Author:** Eksemekse-dev
+
+          > This app was created with the help of AI. It is not intended for piracy and does not support it.
+
+          ## Build
+
+          Push to `main` — GitHub Actions will build an unsigned `.ipa` artifact.
+
+          ## Disclaimer
+
+          This project is provided for educational and personal use only.
+          The author does not condone or support software piracy.
+          EOF
+
       - name: Commit
         run: |
           git config user.name "Ariva Bot"
           git config user.email "bot@ariva.store"
           git add -A
-          git commit -m "🏗️ Auto-generate Ariva-Store structure" || echo "Nothing to commit"
+          git commit -m "🌍 Localize to English, set author Eksemekse-dev, add disclaimer" || echo "Nothing to commit"
           git push
