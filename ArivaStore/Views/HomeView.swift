@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var sourceManager: SourceManager
+    @EnvironmentObject var vpnManager: VPNManager
 
     var body: some View {
         NavigationStack {
@@ -14,9 +15,36 @@ struct HomeView: View {
                 }
                 .padding()
             }
-            .background(Color.black.ignoresSafeArea())
+            .background(Color.black)
             .navigationTitle("Ariva-Store")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    vpnStatusBadge
+                }
+            }
         }
+    }
+
+    // 🟢 / 🔴 VPN status badge
+    private var vpnStatusBadge: some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(vpnManager.isConnected ? Color.green : Color.red)
+                .frame(width: 10, height: 10)
+                .shadow(
+                    color: vpnManager.isConnected
+                        ? .green.opacity(0.7)
+                        : .red.opacity(0.7),
+                    radius: 5
+                )
+            Text(vpnManager.isConnected ? "VPN" : "OFF")
+                .font(.caption2.bold())
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(.ultraThinMaterial, in: Capsule())
+        .accessibilityLabel(vpnManager.isConnected ? "VPN connected" : "VPN disconnected")
     }
 
     private var header: some View {
@@ -51,8 +79,7 @@ struct HomeView: View {
                     Image(systemName: "link.circle.fill").foregroundStyle(.orange)
                     Text(src.name)
                     Spacer()
-                    Text("\(src.appCount)")
-                        .foregroundStyle(.secondary)
+                    Text("\(src.appCount)").foregroundStyle(.secondary)
                 }
                 .padding()
                 .background(Color.gray.opacity(0.15))
@@ -71,6 +98,7 @@ struct HomeView: View {
                 .foregroundStyle(.tertiary)
         }
         .padding(.top, 24)
+        .padding(.bottom, 32)
     }
 }
 
