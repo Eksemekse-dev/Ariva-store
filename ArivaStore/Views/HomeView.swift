@@ -15,7 +15,6 @@ struct HomeView: View {
                 }
                 .padding()
             }
-            .background(Color.black)
             .navigationTitle("Ariva-Store")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -25,16 +24,13 @@ struct HomeView: View {
         }
     }
 
-    // 🟢 / 🔴 VPN status badge
     private var vpnStatusBadge: some View {
         HStack(spacing: 6) {
             Circle()
                 .fill(vpnManager.isConnected ? Color.green : Color.red)
                 .frame(width: 10, height: 10)
                 .shadow(
-                    color: vpnManager.isConnected
-                        ? .green.opacity(0.7)
-                        : .red.opacity(0.7),
+                    color: (vpnManager.isConnected ? Color.green : Color.red).opacity(0.7),
                     radius: 5
                 )
             Text(vpnManager.isConnected ? "VPN" : "OFF")
@@ -44,7 +40,6 @@ struct HomeView: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
         .background(.ultraThinMaterial, in: Capsule())
-        .accessibilityLabel(vpnManager.isConnected ? "VPN connected" : "VPN disconnected")
     }
 
     private var header: some View {
@@ -98,7 +93,7 @@ struct HomeView: View {
                 .foregroundStyle(.tertiary)
         }
         .padding(.top, 24)
-        .padding(.bottom, 32)
+        .padding(.bottom, 24)
     }
 }
 
