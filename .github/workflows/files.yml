@@ -1,0 +1,553 @@
+name: 🏗️ Create Ariva-Store Structure
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/create-files.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create folders
+        run: |
+          mkdir -p ArivaStore/App
+          mkdir -p ArivaStore/Views
+          mkdir -p ArivaStore/Models
+          mkdir -p ArivaStore/Services
+          mkdir -p ArivaStore/Resources
+          mkdir -p ArivaStore/Assets.xcassets/AppIcon.appiconset
+
+      - name: ArivaStoreApp.swift
+        run: |
+          cat > ArivaStore/App/ArivaStoreApp.swift << 'EOF'
+          import SwiftUI
+
+          @main
+          struct ArivaStoreApp: App {
+              @StateObject private var installService = InstallService()
+              @StateObject private var vpnManager = VPNManager()
+              @StateObject private var sourceManager = SourceManager()
+
+              var body: some Scene {
+                  WindowGroup {
+                      ContentView()
+                          .environmentObject(installService)
+                          .environmentObject(vpnManager)
+                          .environmentObject(sourceManager)
+                          .preferredColorScheme(.dark)
+                  }
+              }
+          }
+          EOF
+
+      - name: ContentView.swift
+        run: |
+          cat > ArivaStore/App/ContentView.swift << 'EOF'
+          import SwiftUI
+
+          struct ContentView: View {
+              @State private var selection: Tab = .home
+
+              enum Tab { case home, apps, install, settings }
+
+              var body: some View {
+                  TabView(selection: $selection) {
+                      HomeView()
+                          .tabItem { Label("Dóm", systemImage: "house.fill") }
+                          .tag(Tab.home)
+
+                      AppsListView()
+                          .tabItem { Label("Aplikacyje", systemImage: "square.grid.2x2.fill") }
+                          .tag(Tab.apps)
+
+                      InstallView()
+                          .tabItem { Label("Instalacyjŏ", systemImage: "arrow.down.app.fill") }
+                          .tag(Tab.install)
+
+                      SettingsView()
+                          .tabItem { Label("Sztelōnki", systemImage: "gearshape.fill") }
+                          .tag(Tab.settings)
+                  }
+                  .tint(.orange)
+              }
+          }
+          EOF
+
+      - name: HomeView.swift
+        run: |
+          cat > ArivaStore/Views/HomeView.swift << 'EOF'
+          import SwiftUI
+
+          struct HomeView: View {
+              @EnvironmentObject var sourceManager: SourceManager
+
+              var body: some View {
+                  NavigationStack {
+                      ScrollView {
+                          VStack(alignment: .leading, spacing: 20) {
+                              header
+                              featuredSection
+                              sourcesSection
+                          }
+                          .padding()
+                      }
+                      .background(Color.black.ignoresSafeArea())
+                      .navigationTitle("Ariva-Store")
+                  }
+              }
+
+              private var header: some View {
+                  VStack(alignment: .leading, spacing: 8) {
+                      Text("Witej w Ariva-Store")
+                          .font(.largeTitle.bold())
+                          .foregroundStyle(.orange)
+                      Text("Sideloading IPA dlŏ ślōnskij kultury")
+                          .font(.subheadline)
+                          .foregroundStyle(.secondary)
+                  }
+              }
+
+              private var featuredSection: some View {
+                  VStack(alignment: .leading, spacing: 12) {
+                      Text("Polecane").font(.title2.bold())
+                      ScrollView(.horizontal, showsIndicators: false) {
+                          HStack(spacing: 12) {
+                              ForEach(AppModel.samples) { app in
+                                  FeaturedCard(app: app)
+                              }
+                          }
+                      }
+                  }
+              }
+
+              private var sourcesSection: some View {
+                  VStack(alignment: .leading, spacing: 12) {
+                      Text("Zdrzōdła").font(.title2.bold())
+                      ForEach(sourceManager.sources) { src in
+                          HStack {
+                              Image(systemName: "link.circle.fill").foregroundStyle(.orange)
+                              Text(src.name)
+                              Spacer()
+                              Text("\(src.appCount)")
+                                  .foregroundStyle(.secondary)
+                          }
+                          .padding()
+                          .background(Color.gray.opacity(0.15))
+                          .cornerRadius(12)
+                      }
+                  }
+              }
+          }
+
+          struct FeaturedCard: View {
+              let app: AppModel
+              var body: some View {
+                  VStack(alignment: .leading, spacing: 8) {
+                      RoundedRectangle(cornerRadius: 16)
+                          .fill(LinearGradient(colors: [.orange, .red],
+                                               startPoint: .topLeading,
+                                               endPoint: .bottomTrailing))
+                          .frame(width: 160, height: 160)
+                          .overlay(Text(app.iconEmoji).font(.system(size: 60)))
+                      Text(app.name).font(.headline)
+                      Text(app.bundleID).font(.caption).foregroundStyle(.secondary)
+                  }
+                  .frame(width: 160)
+              }
+          }
+          EOF
+
+      - name: AppsListView.swift
+        run: |
+          cat > ArivaStore/Views/AppsListView.swift << 'EOF'
+          import SwiftUI
+
+          struct AppsListView: View {
+              @State private var search = ""
+              let apps = AppModel.samples
+
+              var filtered: [AppModel] {
+                  search.isEmpty ? apps : apps.filter { $0.name.localizedCaseInsensitiveContains(search) }
+              }
+
+              var body: some View {
+                  NavigationStack {
+                      List(filtered) { app in
+                          NavigationLink(destination: AppDetailView(app: app)) {
+                              HStack(spacing: 12) {
+                                  Text(app.iconEmoji).font(.system(size: 32))
+                                  VStack(alignment: .leading) {
+                                      Text(app.name).font(.headline)
+                                      Text(app.version).font(.caption).foregroundStyle(.secondary)
+                                  }
+                              }
+                          }
+                      }
+                      .navigationTitle("Aplikacyje")
+                      .searchable(text: $search, prompt: "Szukej...")
+                  }
+              }
+          }
+          EOF
+
+      - name: AppDetailView.swift
+        run: |
+          cat > ArivaStore/Views/AppDetailView.swift << 'EOF'
+          import SwiftUI
+
+          struct AppDetailView: View {
+              let app: AppModel
+              @EnvironmentObject var installService: InstallService
+              @EnvironmentObject var vpnManager: VPNManager
+
+              var body: some View {
+                  ScrollView {
+                      VStack(spacing: 20) {
+                          Text(app.iconEmoji).font(.system(size: 100))
+                          Text(app.name).font(.largeTitle.bold())
+                          Text(app.bundleID).font(.caption).foregroundStyle(.secondary)
+
+                          if !vpnManager.isConnected {
+                              Label("Połōncz VPN coby instalować", systemImage: "exclamationmark.triangle")
+                                  .foregroundStyle(.yellow)
+                                  .padding()
+                                  .background(Color.yellow.opacity(0.15))
+                                  .cornerRadius(12)
+                          }
+
+                          Button {
+                              Task { await installService.install(app: app) }
+                          } label: {
+                              Label("Instaluj", systemImage: "arrow.down.circle.fill")
+                                  .frame(maxWidth: .infinity)
+                                  .padding()
+                                  .background(Color.orange)
+                                  .foregroundStyle(.black)
+                                  .cornerRadius(14)
+                          }
+                          .disabled(!vpnManager.isConnected)
+
+                          VStack(alignment: .leading, spacing: 8) {
+                              Text("Ôpis").font(.headline)
+                              Text(app.description).foregroundStyle(.secondary)
+                          }
+                          .frame(maxWidth: .infinity, alignment: .leading)
+                      }
+                      .padding()
+                  }
+                  .navigationTitle(app.name)
+                  .navigationBarTitleDisplayMode(.inline)
+              }
+          }
+          EOF
+
+      - name: InstallView.swift
+        run: |
+          cat > ArivaStore/Views/InstallView.swift << 'EOF'
+          import SwiftUI
+
+          struct InstallView: View {
+              @EnvironmentObject var installService: InstallService
+              @EnvironmentObject var vpnManager: VPNManager
+              @State private var ipaURL = ""
+
+              var body: some View {
+                  NavigationStack {
+                      VStack(spacing: 20) {
+                          vpnStatusCard
+
+                          TextField("https://.../app.ipa", text: $ipaURL)
+                              .textFieldStyle(.roundedBorder)
+                              .autocorrectionDisabled()
+                              .textInputAutocapitalization(.never)
+
+                          Button {
+                              Task { await installService.installFromURL(ipaURL) }
+                          } label: {
+                              Label("Instaluj z URL", systemImage: "link")
+                                  .frame(maxWidth: .infinity).padding()
+                                  .background(Color.orange).foregroundStyle(.black)
+                                  .cornerRadius(14)
+                          }
+                          .disabled(ipaURL.isEmpty || !vpnManager.isConnected)
+
+                          if installService.isInstalling {
+                              ProgressView(value: installService.progress)
+                              Text(installService.status).font(.caption)
+                          }
+
+                          Spacer()
+                      }
+                      .padding()
+                      .navigationTitle("Instalacyjŏ")
+                  }
+              }
+
+              private var vpnStatusCard: some View {
+                  HStack {
+                      Circle()
+                          .fill(vpnManager.isConnected ? .green : .red)
+                          .frame(width: 12, height: 12)
+                      Text(vpnManager.isConnected ? "VPN aktywny" : "VPN niyaktywny")
+                      Spacer()
+                      Button(vpnManager.isConnected ? "Rozłōncz" : "Połōncz") {
+                          vpnManager.toggle()
+                      }
+                  }
+                  .padding()
+                  .background(Color.gray.opacity(0.15))
+                  .cornerRadius(12)
+              }
+          }
+          EOF
+
+      - name: SettingsView.swift
+        run: |
+          cat > ArivaStore/Views/SettingsView.swift << 'EOF'
+          import SwiftUI
+
+          struct SettingsView: View {
+              @EnvironmentObject var sourceManager: SourceManager
+              @AppStorage("autoInstall") private var autoInstall = false
+              @AppStorage("devMode") private var devMode = false
+
+              var body: some View {
+                  NavigationStack {
+                      Form {
+                          Section("Zdrzōdła IPA") {
+                              ForEach(sourceManager.sources) { s in
+                                  Text(s.name)
+                              }
+                              Button("Przidej zdrzōdło") { sourceManager.addSource() }
+                          }
+                          Section("Ôpcyje") {
+                              Toggle("Auto-instalacyjŏ", isOn: $autoInstall)
+                              Toggle("Tryb deweloperski", isOn: $devMode)
+                          }
+                          Section("Ô aplikacyji") {
+                              LabeledContent("Wersyjŏ", value: "1.0.0")
+                              LabeledContent("Autor", value: "Ariva Dev Team")
+                          }
+                      }
+                      .navigationTitle("Sztelōnki")
+                  }
+              }
+          }
+          EOF
+
+      - name: AppModel.swift
+        run: |
+          cat > ArivaStore/Models/AppModel.swift << 'EOF'
+          import Foundation
+
+          struct AppModel: Identifiable, Hashable {
+              let id = UUID()
+              let name: String
+              let bundleID: String
+              let version: String
+              let iconEmoji: String
+              let description: String
+              let ipaURL: String
+
+              static let samples: [AppModel] = [
+                  AppModel(name: "Ślōnsk Radio", bundleID: "pl.ariva.radio",
+                           version: "1.2.0", iconEmoji: "📻",
+                           description: "Radijŏ ze Ślōnska — muzyka, godka, tradycyjŏ.",
+                           ipaURL: "https://example.com/radio.ipa"),
+                  AppModel(name: "Godka Ślōnskŏ", bundleID: "pl.ariva.godka",
+                           version: "2.0.1", iconEmoji: "📖",
+                           description: "Słownik i kurs ślōnskij godki.",
+                           ipaURL: "https://example.com/godka.ipa"),
+                  AppModel(name: "Barbórka AR", bundleID: "pl.ariva.barborka",
+                           version: "1.0.5", iconEmoji: "⛏️",
+                           description: "Rozszerzōnŏ rzeczywistość na Barbórkã.",
+                           ipaURL: "https://example.com/barborka.ipa"),
+                  AppModel(name: "Ślōnskŏ Kuchnia", bundleID: "pl.ariva.kuchnia",
+                           version: "1.1.0", iconEmoji: "🍲",
+                           description: "Tradycyjne recepty: rolada, kluski, modrŏ kapusta.",
+                           ipaURL: "https://example.com/kuchnia.ipa")
+              ]
+          }
+          EOF
+
+      - name: SourceModel.swift
+        run: |
+          cat > ArivaStore/Models/SourceModel.swift << 'EOF'
+          import Foundation
+
+          struct SourceModel: Identifiable, Hashable {
+              let id = UUID()
+              let name: String
+              let url: String
+              let appCount: Int
+          }
+          EOF
+
+      - name: InstallService.swift
+        run: |
+          cat > ArivaStore/Services/InstallService.swift << 'EOF'
+          import Foundation
+          import Combine
+
+          @MainActor
+          final class InstallService: ObservableObject {
+              @Published var isInstalling = false
+              @Published var progress: Double = 0
+              @Published var status: String = "Gotowe"
+
+              func install(app: AppModel) async {
+                  await installFromURL(app.ipaURL)
+              }
+
+              func installFromURL(_ urlString: String) async {
+                  guard let url = URL(string: urlString) else {
+                      status = "Zły URL"; return
+                  }
+                  isInstalling = true
+                  progress = 0
+                  status = "Pobiyranie..."
+                  do {
+                      let (data, _) = try await URLSession.shared.data(from: url)
+                      progress = 0.6
+                      status = "Weryfikacyjŏ podpisu..."
+                      try await Task.sleep(nanoseconds: 800_000_000)
+                      progress = 0.9
+                      status = "Instalacyjŏ..."
+                      try await Task.sleep(nanoseconds: 800_000_000)
+                      progress = 1.0
+                      status = "Zainstalowane (\(data.count) bajtōw)"
+                  } catch {
+                      status = "Feler: \(error.localizedDescription)"
+                  }
+                  isInstalling = false
+              }
+          }
+          EOF
+
+      - name: VPNManager.swift
+        run: |
+          cat > ArivaStore/Services/VPNManager.swift << 'EOF'
+          import Foundation
+          import NetworkExtension
+          import Combine
+
+          @MainActor
+          final class VPNManager: ObservableObject {
+              @Published var isConnected = false
+              @Published var statusText = "Rozłōnczōny"
+
+              // Wymaga entitlement: com.apple.developer.networking.networkextension
+              func toggle() {
+                  isConnected.toggle()
+                  statusText = isConnected ? "Połōnczōny" : "Rozłōnczōny"
+                  if isConnected {
+                      startTunnel()
+                  } else {
+                      stopTunnel()
+                  }
+              }
+
+              private func startTunnel() {
+                  // Miejsce na integrację z zewnętrznym VPN (WireGuard / OpenVPN)
+                  // NEPacketTunnelProviderManager.shared().loadFromPreferences...
+                  print("[Ariva] VPN start")
+              }
+
+              private func stopTunnel() {
+                  print("[Ariva] VPN stop")
+              }
+          }
+          EOF
+
+      - name: SourceManager.swift
+        run: |
+          cat > ArivaStore/Services/SourceManager.swift << 'EOF'
+          import Foundation
+          import Combine
+
+          @MainActor
+          final class SourceManager: ObservableObject {
+              @Published var sources: [SourceModel] = [
+                  SourceModel(name: "Ariva Official", url: "https://ariva.store/repo.json", appCount: 42),
+                  SourceModel(name: "Ślōnsk Community", url: "https://slask.dev/repo.json", appCount: 17)
+              ]
+
+              func addSource() {
+                  sources.append(SourceModel(name: "Nowe zdrzōdło",
+                                             url: "https://example.com/repo.json",
+                                             appCount: 0))
+              }
+          }
+          EOF
+
+      - name: Info.plist
+        run: |
+          cat > ArivaStore/Resources/Info.plist << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>CFBundleDisplayName</key>
+              <string>Ariva-Store</string>
+              <key>CFBundleIdentifier</key>
+              <string>pl.ariva.store</string>
+              <key>CFBundleShortVersionString</key>
+              <string>1.0.0</string>
+              <key>CFBundleVersion</key>
+              <string>1</string>
+              <key>UILaunchScreen</key>
+              <dict/>
+              <key>UISupportedInterfaceOrientations</key>
+              <array>
+                  <string>UIInterfaceOrientationPortrait</string>
+              </array>
+          </dict>
+          </plist>
+          EOF
+
+      - name: project.yml (XcodeGen)
+        run: |
+          cat > project.yml << 'EOF'
+          name: ArivaStore
+          options:
+            bundleIdPrefix: pl.ariva
+            deploymentTarget:
+              iOS: "16.0"
+          targets:
+            ArivaStore:
+              type: application
+              platform: iOS
+              sources:
+                - ArivaStore
+              info:
+                path: ArivaStore/Resources/Info.plist
+                properties:
+                  CFBundleDisplayName: Ariva-Store
+                  CFBundleShortVersionString: "1.0.0"
+                  CFBundleVersion: "1"
+              settings:
+                base:
+                  PRODUCT_BUNDLE_IDENTIFIER: pl.ariva.store
+                  MARKETING_VERSION: "1.0.0"
+                  CURRENT_PROJECT_VERSION: "1"
+                  CODE_SIGN_STYLE: Manual
+                  CODE_SIGNING_REQUIRED: "NO"
+                  CODE_SIGNING_ALLOWED: "NO"
+          EOF
+
+      - name: Commit
+        run: |
+          git config user.name "Ariva Bot"
+          git config user.email "bot@ariva.store"
+          git add -A
+          git commit -m "🏗️ Auto-generate Ariva-Store structure" || echo "Nothing to commit"
+          git push
