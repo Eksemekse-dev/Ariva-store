@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-26     # ← ZMIANA z macos-15
 
     steps:
       - uses: actions/checkout@v4
@@ -16,13 +16,10 @@ jobs:
         run: |
           set -euo pipefail
           newest="$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)"
-          if [ -z "$newest" ]; then
-            echo "::error::No Xcode found on the runner"
-            exit 1
-          fi
           sudo xcode-select -s "$newest/Contents/Developer"
-          echo "::notice::Using Xcode $(xcodebuild -version | head -1)"
+          echo "::notice::Using $(xcodebuild -version | head -1)"
           xcodebuild -version
+          xcodebuild -showsdks | grep iphoneos
 
       - name: Install XcodeGen
         run: brew install xcodegen
